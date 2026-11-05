@@ -1,0 +1,616 @@
+<title>Demo Kartu Aura</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style id="huruf">/*@HURUF*/</style>
+<style>
+/* Tata letak: dua perangkat berdampingan (meja admin dan HP pembeli), dengan buku catatan spreadsheet di bawahnya.
+   Sengaja satu tampilan gelap, mengikuti tampilan Kartu Aura yang asli. */
+:root {
+  color-scheme: dark;
+  --malam: #07100d;
+  --papan: #0d1814;
+  --papan-2: #132019;
+  --lak: #111111;
+  --rimba: #12423a;
+  --emas: #c9a227;
+  --emas-terang: #f1d88a;
+  --gading: #f3ead7;
+  --gading-redup: #b7ae9a;
+  --garis: rgba(243, 234, 215, 0.12);
+  --garis-kuat: rgba(243, 234, 215, 0.22);
+  --serif: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--malam); color: var(--gading);
+  font-family: var(--sans); font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding-block: 22px 44px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--emas-terang); outline-offset: 3px; border-radius: 6px; }
+h1, h2, p, ol { margin: 0; }
+
+.demo {
+  max-width: 1040px; margin: 0 auto; display: grid; gap: 20px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "kepala" "galat" "saklar" "panggung" "langkah" "buku" "bawah";
+}
+.kepala { grid-area: kepala; }
+.langkah { grid-area: langkah; }
+#galat { grid-area: galat; }
+.saklar { grid-area: saklar; }
+.panggung, .cadangan { grid-area: panggung; }
+.buku { grid-area: buku; }
+.bawah { grid-area: bawah; }
+@media (min-width: 860px) {
+  .demo {
+    gap: 22px 36px; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    grid-template-areas: "kepala langkah" "galat galat" "panggung panggung" "buku buku" "bawah bawah";
+  }
+}
+
+.kepala { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.kepala svg { flex: none; width: 64px; height: auto; }
+.kepala h1 { font-family: var(--serif); font-weight: 600; font-size: 2rem; line-height: 1.02; text-wrap: balance; }
+.kepala p { margin-top: 6px; color: var(--gading-redup); max-width: 46ch; }
+.kepala .petunjuk { color: var(--gading); }
+.langkah h2, .buku h2 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.langkah ol { padding-left: 1.3em; display: grid; gap: 6px; color: var(--gading-redup); max-width: 62ch; }
+.langkah b { color: var(--gading); font-weight: 600; }
+@media (min-width: 860px) {
+  .kepala { align-self: center; }
+  .kepala svg { width: 84px; }
+  .kepala h1 { font-size: 2.4rem; }
+  .kepala .petunjuk { display: none; }
+}
+
+/* saklar perangkat: hanya di layar sempit, tempat dua perangkat tidak muat berdampingan */
+.saklar { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 999px; background: var(--papan); border: 1px solid var(--garis); }
+.saklar button { position: relative; min-height: 44px; border: 0; border-radius: 999px; background: none; color: var(--gading-redup); font-weight: 600; }
+.saklar button[aria-pressed="true"] { background: rgba(201, 162, 39, 0.16); color: var(--emas-terang); }
+.titik-baru { display: inline-block; width: 8px; height: 8px; margin-left: 6px; border-radius: 50%; background: var(--emas); vertical-align: middle; }
+
+.panggung { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); justify-content: center; }
+.perangkat { min-width: 0; }
+.perangkat__judul { display: flex; align-items: baseline; gap: 10px; margin: 0 4px 8px; font-size: 1rem; font-weight: 700; }
+.perangkat__judul small { font-size: 0.8125rem; font-weight: 500; color: var(--gading-redup); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.perangkat__bingkai {
+  position: relative; height: 700px; max-width: 420px; margin: 0 auto; overflow: hidden;
+  border-radius: 28px; border: 1px solid var(--garis-kuat); background: var(--malam);
+  box-shadow: 0 34px 70px -34px rgba(0, 0, 0, 0.95), 0 0 0 5px rgba(243, 234, 215, 0.03);
+}
+.perangkat__bingkai iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--malam); }
+@media (max-width: 859px) {
+  .panggung { position: relative; }
+  .panggung[data-tampil="meja"] #p-hp, .panggung[data-tampil="hp"] #p-meja { position: absolute; left: 0; right: 0; top: 0; visibility: hidden; pointer-events: none; }
+  .perangkat__bingkai { height: 660px; }
+}
+@media (min-width: 860px) {
+  .saklar { display: none; }
+  .panggung { grid-template-columns: repeat(2, minmax(0, 420px)); gap: 28px; }
+}
+
+/* HP pembeli: dua layar, kartu dan chat */
+.hp__tab { position: absolute; left: 0; right: 0; top: 0; z-index: 2; height: 46px; display: grid; grid-template-columns: 1fr 1fr; background: #0a1511; border-bottom: 1px solid var(--garis); }
+.hp__tab button { border: 0; background: none; color: var(--gading-redup); font-size: 0.875rem; font-weight: 600; }
+.hp__tab button[aria-selected="true"] { color: var(--emas-terang); box-shadow: inset 0 -2px 0 var(--emas); }
+.hp__layar { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; }
+.hp__kabar {
+  position: absolute; left: 12px; right: 12px; top: 56px; z-index: 3; padding: 10px 14px; border-radius: 14px;
+  background: var(--gading); color: #14110a; font-size: 0.875rem; font-weight: 600; text-align: left; border: 0;
+  box-shadow: 0 16px 34px -14px rgba(0, 0, 0, 0.9);
+}
+.hp__kabar small { display: block; font-weight: 500; opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.wa { display: flex; flex-direction: column; background: #0a1410; }
+.wa__kepala { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--garis); }
+.wa__foto { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--lak); border: 1px solid rgba(201, 162, 39, 0.5); display: grid; place-items: center; }
+.wa__foto svg { width: 28px; height: auto; }
+.wa__kepala b { display: block; font-weight: 700; }
+.wa__kepala small { display: block; font-size: 0.75rem; color: var(--gading-redup); }
+.wa__isi { flex: 1; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.gelembung { max-width: 88%; padding: 10px 12px; border-radius: 14px; font-size: 0.875rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.gelembung--masuk { align-self: flex-start; background: var(--papan-2); border: 1px solid var(--garis); border-top-left-radius: 4px; }
+.gelembung--keluar { align-self: flex-end; background: var(--rimba); border-top-right-radius: 4px; }
+.gelembung small { display: block; margin-top: 4px; font-size: 0.6875rem; color: var(--gading-redup); text-align: right; white-space: normal; }
+.gelembung button { display: inline; padding: 0; border: 0; background: none; color: var(--emas-terang); font-weight: 600; text-align: left; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.wa__kosong { margin: auto; max-width: 26ch; text-align: center; color: var(--gading-redup); font-size: 0.875rem; }
+.wa__kaki { padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--garis); color: var(--gading-redup); font-size: 0.75rem; text-align: center; }
+
+/* buku catatan */
+.buku { min-width: 0; padding: 18px; border-radius: 18px; background: var(--papan); border: 1px solid var(--garis); }
+.buku__kepala { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.buku p { color: var(--gading-redup); max-width: 70ch; }
+.buku__hitung { font-size: 0.8125rem; color: var(--gading-redup); font-variant-numeric: tabular-nums; }
+.gulir { margin-top: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+td, th { white-space: nowrap; }
+th { text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--gading-redup); padding: 8px 14px 8px 0; border-bottom: 1px solid var(--garis-kuat); white-space: nowrap; }
+td { padding: 9px 14px 9px 0; border-bottom: 1px solid rgba(243, 234, 215, 0.06); vertical-align: top; }
+td.angka, th.angka { text-align: right; padding-right: 0; font-variant-numeric: tabular-nums; }
+td.waktu { white-space: nowrap; color: var(--gading-redup); font-variant-numeric: tabular-nums; }
+tr.baru td { animation: kilat 2.4s ease-out; }
+@keyframes kilat { from { background: rgba(201, 162, 39, 0.26); } to { background: transparent; } }
+
+.bawah { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; color: var(--gading-redup); font-size: 0.8125rem; }
+.bawah p { max-width: 70ch; }
+.tombol-ulang { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--garis-kuat); background: none; font-weight: 600; font-size: 0.8125rem; color: var(--gading); }
+.tombol-ulang:hover { border-color: var(--gading-redup); }
+
+.galat { padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(240, 147, 127, 0.5); background: rgba(240, 147, 127, 0.1); color: #ffd9cf; }
+.cadangan { display: grid; gap: 18px; }
+.cadangan__gambar { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.cadangan figure { margin: 0; }
+.cadangan img { display: block; width: 100%; max-width: 390px; height: auto; border-radius: 22px; border: 1px solid var(--garis-kuat); }
+.cadangan figcaption { margin-top: 8px; color: var(--gading-redup); font-size: 0.8125rem; }
+
+@media (prefers-reduced-motion: reduce) { tr.baru td { animation: none; } }
+</style>
+
+<div class="demo">
+  <header class="kepala">
+    <span id="lambang"></span>
+    <div>
+      <h1>Kartu Aura</h1>
+      <p>Demo yang bisa dicoba langsung. Semua nama dan nomor di sini contoh, dan tidak ada pesan yang benar-benar terkirim.</p>
+      <p class="petunjuk">Mulai dari sini: ketuk Meylani Putri, tekan Stempel, lalu buka HP pembeli.</p>
+    </div>
+  </header>
+  <section class="langkah" aria-labelledby="judul-langkah">
+      <h2 id="judul-langkah">Coba urutan ini</h2>
+      <ol>
+        <li>Di Meja Stempel, ketuk <b>Meylani Putri</b> lalu tekan <b>Stempel</b>. Kartu di HP pembeli ikut terisi.</li>
+        <li>Tekan <b>Kirim lewat WhatsApp</b>. Pesannya masuk ke HP pembeli, lengkap dengan link kartunya.</li>
+        <li>Stempel sekali lagi sampai kartunya penuh, lalu catat hadiahnya.</li>
+        <li>Ketik nomor yang belum terdaftar, misalnya <b>0800 5550 0199</b>, untuk membuat kartu baru dan memberi Stempel Awal.</li>
+      </ol>
+  </section>
+
+  <div id="galat" class="galat" role="alert" hidden></div>
+
+  <div class="saklar" role="group" aria-label="Pilih perangkat yang ditampilkan">
+    <button type="button" id="saklar-meja" aria-pressed="true">Meja Stempel</button>
+    <button type="button" id="saklar-hp" aria-pressed="false">HP pembeli<span id="saklar-titik" class="titik-baru" hidden></span></button>
+  </div>
+
+  <div class="panggung" id="panggung" data-tampil="meja">
+    <section class="perangkat" id="p-meja" aria-labelledby="j-meja">
+      <h2 class="perangkat__judul" id="j-meja">Meja Stempel <small>dipegang admin APB</small></h2>
+      <div class="perangkat__bingkai"><iframe id="f-meja" title="Meja Stempel, halaman admin"></iframe></div>
+    </section>
+    <section class="perangkat" id="p-hp" aria-labelledby="j-hp">
+      <h2 class="perangkat__judul" id="j-hp">HP pembeli <small id="nama-pembeli"></small></h2>
+      <div class="perangkat__bingkai">
+        <div class="hp__tab" role="tablist" aria-label="Layar di HP pembeli">
+          <button type="button" role="tab" id="tab-kartu" aria-selected="true" aria-controls="layar-kartu">Kartu</button>
+          <button type="button" role="tab" id="tab-wa" aria-selected="false" aria-controls="layar-wa">Chat WhatsApp<span id="tab-titik" class="titik-baru" hidden></span></button>
+        </div>
+        <button type="button" class="hp__kabar" id="hp-kabar" hidden></button>
+        <div class="hp__layar" id="layar-kartu" role="tabpanel" aria-labelledby="tab-kartu"><iframe id="f-kartu" title="Kartu stempel milik pembeli"></iframe></div>
+        <div class="hp__layar wa" id="layar-wa" role="tabpanel" aria-labelledby="tab-wa" hidden>
+          <div class="wa__kepala"><span class="wa__foto" id="wa-foto"></span><div><b>APB</b><small>chat tiruan untuk demo</small></div></div>
+          <div class="wa__isi" id="wa-isi"></div>
+          <div class="wa__kaki">Kartu dibuka dari link di chat. Tidak ada aplikasi yang perlu dipasang.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="cadangan" class="cadangan" hidden>
+    <p class="galat">Demo interaktif tidak bisa dijalankan di tampilan ini. Di bawah ini tangkapan layarnya.</p>
+    <div class="cadangan__gambar"><!--@CADANGAN--></div>
+  </div>
+
+  <section class="buku" aria-labelledby="judul-buku">
+    <div class="buku__kepala">
+      <h2 id="judul-buku">Yang tercatat di Google Sheets</h2>
+      <span class="buku__hitung" id="buku-hitung"></span>
+    </div>
+    <p>Setiap stempel menambah satu baris di tab Transaksi. Baris lama tidak pernah diubah atau dihapus. Pembatalan pun dicatat sebagai baris baru, jadi semuanya bisa ditelusuri.</p>
+    <div class="gulir">
+      <table>
+        <thead><tr><th>Waktu</th><th>Pelanggan</th><th>Catatan</th><th>Nomor pesanan</th><th>Oleh</th><th>Kartu setelahnya</th></tr></thead>
+        <tbody id="buku-isi"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="bawah">
+    <p>Di demo ini Meja Stempel sudah masuk sebagai Owner. Di aplikasi asli, admin masuk dengan nama dan PIN 6 angka.</p>
+    <button type="button" class="tombol-ulang" id="ulang">Ulangi demo dari awal</button>
+  </div>
+</div>
+
+<!--@BLOK-->
+<script id="skrip-logo">/*@LOGO*/</script>
+<script>/*@TIRUAN*/</script>
+<script>
+// Code.gs yang sama dengan yang dipasang di Apps Script, dibungkus supaya layanan Google bisa diganti tiruannya.
+window.KA_BUAT_SERVER = function (SpreadsheetApp, LockService, CacheService, PropertiesService, Utilities, ContentService, ScriptApp, Logger, Charts, Date) {
+/*@SERVER*/
+  return { doPost: doPost, doGet: doGet, pasang: pasang, KOLOM: KOLOM, TAB: TAB };
+};
+</script>
+<script>
+(function () {
+  'use strict';
+
+  var HARI = 86400000;
+  var ALAMAT_KARTU = 'https://kartu-aura.example/kartu/';
+  var LABEL = {
+    DAFTAR: 'Kartu dibuat', PERSETUJUAN: 'Persetujuan data', STEMPEL_AWAL: 'Stempel awal', STEMPEL: 'Stempel pembelian', BATAL: 'Stempel dibatalkan',
+    HADIAH: 'Hadiah diberikan', HADIAH_TUNDA: 'Hadiah ditunda', PENYESUAIAN: 'Penyesuaian', HAPUS_DATA: 'Data dihapus'
+  };
+  var BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+  function id(x) { return document.getElementById(x); }
+  function teks(x) { return id(x).textContent; }
+  function el(tag, kelas, isi) { var e = document.createElement(tag); if (kelas) e.className = kelas; if (isi !== undefined) e.textContent = isi; return e; }
+  function dua(n) { return (n < 10 ? '0' : '') + n; }
+  function wib(t) { var x = new Date(new Date(t).getTime() + 7 * 3600000); return { d: x.getUTCDate(), m: x.getUTCMonth(), y: x.getUTCFullYear(), H: x.getUTCHours(), M: x.getUTCMinutes() }; }
+  function waktuRingkas(t) { var b = wib(t); return b.d + ' ' + BULAN[b.m] + ', ' + dua(b.H) + '.' + dua(b.M); }
+
+  var fMeja = id('f-meja'), fKartu = id('f-kartu');
+  var jam, gas, server, sesi, pembeli, siap, barisBuku, jagaWaktu, waktuKabar;
+
+  /* ---------- lambang ---------- */
+  function lambang(lebar) {
+    var L = KA.logo.emblem, NS = 'http://www.w3.org/2000/svg';
+    var s = document.createElementNS(NS, 'svg');
+    s.setAttribute('viewBox', '0 0 ' + L.w + ' ' + L.h); s.setAttribute('aria-hidden', 'true'); s.setAttribute('focusable', 'false');
+    if (lebar) s.setAttribute('width', lebar);
+    var p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', L.d); p.setAttribute('fill', '#c9a227'); p.setAttribute('fill-rule', 'evenodd');
+    s.appendChild(p);
+    return s;
+  }
+  id('lambang').appendChild(lambang());
+  id('wa-foto').appendChild(lambang());
+
+  /* ---------- server tiruan ---------- */
+  function minta(aksi, data) {
+    var badan = { aksi: aksi };
+    Object.keys(data || {}).forEach(function (k) { badan[k] = data[k]; });
+    var j = JSON.parse(server.doPost({ postData: { contents: JSON.stringify(badan) } }).getContent());
+    if (!j.ok) throw new Error(aksi + ': ' + (j.pesan || j.kode));
+    return j.data;
+  }
+
+  // Membaca satu tab spreadsheet tiruan sebagai daftar objek. mana: 'PELANGGAN' atau 'TRANSAKSI'.
+  function lembar(mana) {
+    var l = gas._buku.getSheetByName(server.TAB[mana]), kolom = server.KOLOM[mana];
+    var semua = l ? l._nilai.slice(1).filter(function (r) { return r && r.some(function (v) { return v !== '' && v !== undefined; }); }) : [];
+    return semua.map(function (r) { var o = {}; kolom.forEach(function (k, i) { o[k] = r[i] === undefined ? '' : r[i]; }); return o; });
+  }
+
+  function cariPelanggan(uji) {
+    var semua = lembar('PELANGGAN');
+    for (var i = 0; i < semua.length; i++) if (uji(semua[i])) return { id: String(semua[i].id), nama: String(semua[i].nama), wa: String(semua[i].wa), token: String(semua[i].token || '') };
+    return null;
+  }
+
+  /* ---------- isi awal: cerita dua bulan terakhir ---------- */
+  function isiAwal() {
+    jam = { geser: 0, now: function () { return Date.now() + jam.geser; } };
+    gas = buatTiruanGas({ jam: jam, ui: false, urlApi: 'https://script.google.com/macros/s/CONTOH-DEMO/exec', urlBuku: '' });   // demo tidak punya spreadsheet sungguhan untuk dibuka
+    class Tanggal extends Date {
+      constructor(...a) { if (a.length === 0) super(jam.now()); else super(...a); }
+      static now() { return jam.now(); }
+    }
+    server = KA_BUAT_SERVER(gas.SpreadsheetApp, gas.LockService, gas.CacheService, gas.PropertiesService, gas.Utilities, gas.ContentService, gas.ScriptApp, gas.Logger, gas.Charts, Tanggal);
+
+    var kini = Date.now();
+    function pindahKe(t) { jam.geser = t - Date.now(); }
+    // Jam kerja WIB (09.00–20.59) pada hari ke-h yang lalu; n mengacak jam dan menitnya.
+    function saat(h, n) {
+      var t = new Date(kini - h * HARI);
+      t.setUTCHours(2 + (n * 5) % 12, (n * 17) % 60, 0, 0);
+      return Math.min(t.getTime(), kini - 20 * 60000);
+    }
+
+    pindahKe(kini - 80 * HARI);
+    server.pasang();
+    var awal = minta('masuk', { nama: 'Owner', pin: '123456' });
+    var owner = minta('ganti_pin', { sesi: awal.sesi, pin_lama: '123456', pin_baru: '482915' }).sesi;
+    minta('pengaturan_simpan', { sesi: owner, ubah: { url_kartu: ALAMAT_KARTU, wa_admin: '0800-0000-0000', otomatis_aktif: 'ya' } });
+    minta('admin_tambah', { sesi: owner, nama: 'Mira', peran: 'admin', pin: '905317' });
+    var adminAwal = minta('masuk', { nama: 'Mira', pin: '905317' });
+    minta('ganti_pin', { sesi: adminAwal.sesi, pin_lama: '905317', pin_baru: '271828' });
+    var kunci = minta('pengaturan_baca', { sesi: owner }).kunci_api;
+
+    // nama, nomor, hari daftar (sekian hari lalu), asal Stempel Awal, hari-hari pembelian lewat WA, hadiah saat kartu penuh
+    var cerita = [
+      { nama: 'Sari Wulandari', wa: '0800-5550-0101', daftar: 72, asal: 'Shopee', beli: [70] },
+      { nama: 'Agustina Lestari', wa: '0800-5550-0102', daftar: 66, asal: 'TikTok Shop', beli: [62, 49, 35, 21, 6], hadiah: 'Senja' },
+      { nama: 'Hendra Gunawan', wa: '0800-5550-0103', daftar: 60, asal: 'TikTok Shop', beli: [55, 41, 26] },
+      { nama: 'Novita Anggraini', wa: '0800-5550-0104', daftar: 52, asal: '', beli: [52, 45, 33, 24, 10], hadiah: 'Embun' },
+      { nama: 'Rudi Hartono', wa: '0800-5550-0105', daftar: 48, asal: 'Lainnya', beli: [] },
+      { nama: 'Fitri Handayani', wa: '0800-5550-0106', daftar: 44, asal: 'TikTok Shop', beli: [40, 28, 12] },
+      { nama: 'Yoga Pratama', wa: '0800-5550-0107', daftar: 38, asal: 'TikTok Shop', beli: [30] },
+      { nama: 'Lina Marlina', wa: '0800-5550-0108', daftar: 33, asal: 'Shopee', beli: [27, 15] },
+      { nama: 'Dimas Anggara', wa: '0800-5550-0109', daftar: 30, asal: 'TikTok Shop', beli: [24, 17, 9, 2], hadiah: 'tunda' },
+      { nama: 'Maria Kristina', wa: '0800-5550-0110', daftar: 25, asal: '', beli: [25, 11] },
+      { nama: 'Yohana Kristin', wa: '0800-5550-0111', daftar: 21, asal: 'TikTok Shop', beli: [14, 8, 3] },
+      { nama: 'Bagas Saputra', wa: '0800-5550-0112', daftar: 16, asal: 'TikTok Shop', beli: [], belumBuka: true },
+      { nama: 'Putri Ayu', wa: '0800-5550-0113', daftar: 13, asal: '', beli: [13, 4] },
+      { nama: 'Meylani Putri', wa: '0800-5550-0114', daftar: 6, asal: 'TikTok Shop', beli: [4, 1] }
+    ];
+
+    var kejadian = [], urut = 0;
+    cerita.forEach(function (c, n) {
+      var t0 = saat(c.daftar, n + 1);
+      kejadian.push({ t: t0, urut: urut++, c: c, apa: 'daftar' });
+      if (!c.belumBuka) kejadian.push({ t: t0 + 3 * 60000, urut: urut++, c: c, apa: 'setuju' });
+      if (c.asal) kejadian.push({ t: t0 + 5 * 60000, urut: urut++, c: c, apa: 'awal' });
+      c.beli.forEach(function (h, i) {
+        kejadian.push({ t: h === c.daftar ? t0 + 20 * 60000 : saat(h, n + i + 3), urut: urut++, c: c, apa: 'beli', hari: h });
+      });
+    });
+    kejadian.sort(function (a, b) { return a.t - b.t || a.urut - b.urut; });
+
+    var nomorPesanan = 1000, pesanAkhir = {};
+    kejadian.forEach(function (k) {
+      var c = k.c;
+      pindahKe(k.t);
+      var sesiAdmin = k.apa === 'setuju' ? '' : minta('masuk', { nama: 'Mira', pin: '271828' }).sesi;   // sesi admin hanya berlaku 12 jam
+      if (k.apa === 'daftar') {
+        var d = minta('daftar', { sesi: sesiAdmin, nama: c.nama, wa: c.wa });
+        c.id = d.pelanggan.id; c.token = d.pelanggan.tautan.split('#')[1];
+      } else if (k.apa === 'setuju') {
+        minta('setuju', { t: c.token });
+      } else if (k.apa === 'awal') {
+        pesanAkhir[c.id] = { teks: minta('stempel_awal', { sesi: sesiAdmin, id: c.id, asal: c.asal }).pesan, t: k.t };
+      } else {
+        nomorPesanan += 37;
+        var b = wib(k.t), nomor = 'ORD-' + b.y + dua(b.m + 1) + dua(b.d) + '-' + nomorPesanan;
+        var penuh, pesan;
+        if (k.hari <= 10) {   // sepuluh hari terakhir: stempel masuk otomatis dari alur pesanan Laura
+          var o = minta('otomatis_stempel', { kunci: kunci, wa: c.wa, nomor_pesanan: nomor, oleh: 'Laura' });
+          penuh = o.kartu_penuh; pesan = o.pesan;
+        } else {
+          var s = minta('stempel', { sesi: sesiAdmin, id: c.id, nomor_pesanan: nomor });
+          penuh = s.kartu_penuh; pesan = s.pesan;
+        }
+        if (penuh && c.hadiah) {
+          pindahKe(k.t + 2 * 60000);
+          pesan = c.hadiah === 'tunda'
+            ? minta('hadiah_tunda', { sesi: sesiAdmin, id: c.id }).pesan
+            : minta('hadiah', { sesi: sesiAdmin, id: c.id, aroma: c.hadiah, baru_penuh: true }).pesan;
+        }
+        pesanAkhir[c.id] = { teks: pesan, t: k.t };
+      }
+    });
+
+    jam.geser = 0;
+    var m = minta('masuk', { nama: 'Owner', pin: '482915' });
+    sesi = { sesi: m.sesi, nama: m.nama, peran: m.peran };
+    var utama = cerita[cerita.length - 1];
+    pembeli = { id: utama.id, nama: utama.nama, wa: '', token: utama.token };
+    return pesanAkhir[utama.id];
+  }
+
+  /* ---------- dua halaman asli, dimuat ke dalam bingkai ---------- */
+  var JEMBATAN = [
+    '(function () {',
+    '  var PERAN = "__PERAN__", nomor = 0, tunggu = {};',
+    '  function kirim(jenis, isi) { try { parent.postMessage({ jenis: jenis, dari: PERAN, isi: isi }, "*"); } catch (x) {} }',
+    '  window.addEventListener("message", function (e) {',
+    '    var d = e.data;',
+    '    if (d && d.jenis === "ka-jawab" && tunggu[d.id]) { var f = tunggu[d.id]; delete tunggu[d.id]; f(d.keluar); }',
+    '  });',
+    '  window.KA_DEMO = { panggil: function (badan) { return new Promise(function (selesai) { var id = ++nomor; tunggu[id] = selesai; parent.postMessage({ jenis: "ka-api", dari: PERAN, id: id, badan: badan }, "*"); }); } };',
+    '  window.open = function (url) { kirim("ka-wa", String(url)); return null; };',
+    '  document.addEventListener("click", function (e) {',
+    '    var a = e.target && e.target.closest ? e.target.closest("a[href^=\\"https://wa.me/\\"]") : null;',
+    '    if (a) { e.preventDefault(); kirim("ka-wa", a.getAttribute("href")); }',
+    '  }, true);',
+    '  window.addEventListener("load", function () { kirim("ka-siap", ""); });',
+    '})();'
+  ].join('\n');
+
+  function skrip(s) { return '<script>' + s.replace(/<\/script/gi, '<\\/script') + '</' + 'script>'; }
+
+  function dokumen(peran, config) {
+    var css = teks('huruf') + teks('css-dasar') + teks(peran === 'meja' ? 'css-meja' : 'css-kartu');
+    var badan = peran === 'meja'
+      ? '<body class="hal-meja"><div id="akar"><div class="muat">Membuka Meja Stempel…</div></div>'
+      : '<body class="hal-kartu"><main id="akar" class="hal"><div class="kerangka" aria-busy="true"><div class="kerangka__kartu"></div><p class="kerangka__teks">Membuka kartumu…</p></div></main>';
+    return '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+      + '<meta name="color-scheme" content="dark"><title>' + (peran === 'meja' ? 'Meja Stempel' : 'Kartu Aura') + '</title><style>' + css + '</style></head>' + badan
+      + skrip('window.KA = { config: ' + JSON.stringify(config) + ' };\n' + JEMBATAN.replace('__PERAN__', peran))
+      + skrip(teks('skrip-logo')) + skrip(teks('js-api')) + skrip(teks(peran === 'meja' ? 'js-meja' : 'js-kartu'))
+      + '</body></html>';
+  }
+
+  function muatMeja() { fMeja.srcdoc = dokumen('meja', { api: 'demo', sesi: sesi }); }
+  function muatKartu() {
+    fKartu.srcdoc = dokumen('kartu', { api: 'demo', token: pembeli.token });
+    id('nama-pembeli').textContent = pembeli.nama;
+  }
+
+  /* ---------- HP pembeli: tab dan chat ---------- */
+  function bukaTabHp(mana) {
+    var kartu = mana === 'kartu';
+    id('tab-kartu').setAttribute('aria-selected', kartu ? 'true' : 'false');
+    id('tab-wa').setAttribute('aria-selected', kartu ? 'false' : 'true');
+    id('layar-kartu').hidden = !kartu;
+    id('layar-wa').hidden = kartu;
+    if (!kartu) { id('tab-titik').hidden = true; id('hp-kabar').hidden = true; var isi = id('wa-isi'); isi.scrollTop = isi.scrollHeight; }
+  }
+  id('tab-kartu').addEventListener('click', function () { bukaTabHp('kartu'); });
+  id('tab-wa').addEventListener('click', function () { bukaTabHp('wa'); });
+  id('hp-kabar').addEventListener('click', function () { bukaTabHp('wa'); });
+
+  function kosongkanChat() {
+    var isi = id('wa-isi');
+    while (isi.firstChild) isi.removeChild(isi.firstChild);
+    isi.appendChild(el('p', 'wa__kosong', 'Belum ada pesan. Tekan "Kirim lewat WhatsApp" di Meja Stempel untuk melihat pesannya masuk ke sini.'));
+    id('tab-titik').hidden = true; id('hp-kabar').hidden = true;
+  }
+
+  function gelembung(arah, pesan, kapan, diam) {
+    var isi = id('wa-isi'), kosong = isi.querySelector('.wa__kosong');
+    if (kosong) isi.removeChild(kosong);
+    var g = el('div', 'gelembung gelembung--' + arah);
+    // link kartu di dalam pesan bisa diketuk, seperti di WhatsApp
+    String(pesan).split(/(https?:\/\/\S+)/).forEach(function (potong) {
+      if (/^https?:\/\//.test(potong)) {
+        var b = el('button', '', potong);
+        b.type = 'button';
+        b.addEventListener('click', function () { bukaTabHp('kartu'); });
+        g.appendChild(b);
+      } else if (potong) g.appendChild(document.createTextNode(potong));
+    });
+    g.appendChild(el('small', '', kapan));
+    isi.appendChild(g);
+    isi.scrollTop = isi.scrollHeight;
+    if (arah === 'masuk' && !diam && id('layar-wa').hidden) {
+      id('tab-titik').hidden = false;
+      var k = id('hp-kabar');
+      while (k.firstChild) k.removeChild(k.firstChild);
+      k.appendChild(document.createTextNode('Pesan baru dari APB'));
+      k.appendChild(el('small', '', String(pesan).split('\n')[0]));
+      k.hidden = false;
+      clearTimeout(waktuKabar);
+      waktuKabar = setTimeout(function () { k.hidden = true; }, 7000);
+    }
+    if (!diam) tandaiHp();
+  }
+
+  /* ---------- saklar perangkat (layar sempit) ---------- */
+  function tampilkan(mana) {
+    id('panggung').setAttribute('data-tampil', mana);
+    id('saklar-meja').setAttribute('aria-pressed', mana === 'meja' ? 'true' : 'false');
+    id('saklar-hp').setAttribute('aria-pressed', mana === 'hp' ? 'true' : 'false');
+    if (mana === 'hp') id('saklar-titik').hidden = true;
+  }
+  function tandaiHp() { if (id('panggung').getAttribute('data-tampil') !== 'hp') id('saklar-titik').hidden = false; }
+  id('saklar-meja').addEventListener('click', function () { tampilkan('meja'); });
+  id('saklar-hp').addEventListener('click', function () { tampilkan('hp'); });
+
+  /* ---------- buku catatan ---------- */
+  function gambarBuku(awal) {
+    var trx = lembar('TRANSAKSI'), nama = {};
+    lembar('PELANGGAN').forEach(function (p) { nama[String(p.id)] = String(p.nama); });
+    var badan = id('buku-isi');
+    while (badan.firstChild) badan.removeChild(badan.firstChild);
+    var mulai = Math.max(0, trx.length - 7);
+    for (var i = trx.length - 1; i >= mulai; i--) {
+      var t = trx[i], tr = el('tr', !awal && i >= barisBuku ? 'baru' : '');
+      var catatan = (LABEL[t.jenis] || t.jenis) + (t.asal ? ', dari ' + t.asal : '') + (t.aroma ? ', aroma ' + t.aroma : '');
+      tr.appendChild(el('td', 'waktu', waktuRingkas(t.waktu)));
+      tr.appendChild(el('td', '', nama[String(t.id_pelanggan)] || ''));
+      tr.appendChild(el('td', '', catatan));
+      tr.appendChild(el('td', '', String(t.nomor_pesanan || '')));
+      tr.appendChild(el('td', '', String(t.admin || '') + (t.sumber === 'otomatis' ? ' (otomatis)' : '')));
+      tr.appendChild(el('td', '', 'ke-' + t.kartu_ke + ', ' + t.saldo_setelah + ' stempel' + (Number(t.hadiah_siap) > 0 ? ', hadiah siap' : '')));
+      badan.appendChild(tr);
+    }
+    barisBuku = trx.length;
+    id('buku-hitung').textContent = trx.length + ' baris di tab Transaksi';
+  }
+
+  /* ---------- pesan dari kedua bingkai ---------- */
+  var MENGUBAH = { daftar: 1, stempel: 1, stempel_awal: 1, hadiah: 1, hadiah_tunda: 1, batal: 1, penyesuaian: 1, ubah_nama: 1, ubah_pelanggan: 1 };
+
+  function ikuti(idPelanggan, adaPerubahan) {
+    var p = cariPelanggan(function (x) { return String(x.id) === String(idPelanggan); });
+    if (!p || !p.token) { if (adaPerubahan) segarkanKartu(); return; }
+    if (p.id !== pembeli.id) { pembeli = p; kosongkanChat(); bukaTabHp('kartu'); muatKartu(); tandaiHp(); }
+    else {
+      if (p.nama !== pembeli.nama) { pembeli.nama = p.nama; id('nama-pembeli').textContent = p.nama; }
+      if (adaPerubahan) { segarkanKartu(); tandaiHp(); }
+    }
+  }
+  function segarkanKartu() { try { fKartu.contentWindow.postMessage({ jenis: 'ka-segarkan' }, '*'); } catch (x) { /* bingkai belum siap */ } }
+
+  function setelah(dari, badan, keluar) {
+    if (lembar('TRANSAKSI').length !== barisBuku) gambarBuku(false);
+    if (!keluar.ok) return;
+    var aksi = badan.aksi;
+    if (dari === 'meja') {
+      if (aksi === 'pelanggan') ikuti(badan.id, false);
+      else if (MENGUBAH[aksi]) ikuti(badan.id || (keluar.data.pelanggan && keluar.data.pelanggan.id), true);
+      else if (aksi === 'hapus_pelanggan') segarkanKartu();
+    } else if (aksi === 'setuju' || aksi === 'hapus_data_saya') {
+      try { fMeja.contentWindow.postMessage({ jenis: 'ka-segarkan' }, '*'); } catch (x) { /* abaikan */ }
+    }
+  }
+
+  function terimaWa(dari, url) {
+    var m = /^https:\/\/wa\.me\/(\d*)(?:\?text=(.*))?$/.exec(url);
+    if (!m) return;
+    var pesan = '';
+    try { pesan = decodeURIComponent(m[2] || ''); } catch (x) { pesan = m[2] || ''; }
+    var sekarang = waktuRingkas(Date.now()).split(', ')[1];
+    if (dari === 'kartu') {          // pembeli menekan tombol WhatsApp di kartunya
+      gelembung('keluar', pesan || 'Halo', sekarang + ', pesan pembeli sudah terisi otomatis');
+      bukaTabHp('wa');
+      return;
+    }
+    var p = cariPelanggan(function (x) { return String(x.wa) === m[1]; });   // admin mengirim pesan ke pembeli
+    if (p && p.token && p.id !== pembeli.id) { pembeli = p; kosongkanChat(); muatKartu(); }
+    gelembung('masuk', pesan, sekarang);
+  }
+
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d || !d.jenis) return;
+    var dari = e.source === fMeja.contentWindow ? 'meja' : e.source === fKartu.contentWindow ? 'kartu' : null;
+    if (!dari) return;
+    if (d.jenis === 'ka-siap') { siap[dari] = true; return; }
+    if (d.jenis === 'ka-wa') { terimaWa(dari, String(d.isi || '')); return; }
+    if (d.jenis !== 'ka-api') return;
+    var keluar;
+    try { keluar = JSON.parse(server.doPost({ postData: { contents: JSON.stringify(d.badan) } }).getContent()); }
+    catch (x) { keluar = { ok: false, kode: 'GALAT', pesan: 'Server demo bermasalah.' }; }
+    var sumber = e.source;
+    setTimeout(function () {   // jeda kecil, meniru perjalanan ke server
+      try { sumber.postMessage({ jenis: 'ka-jawab', id: d.id, keluar: keluar }, '*'); } catch (x) { /* bingkai sudah diganti */ }
+      setelah(dari, d.badan || {}, keluar);
+    }, 170);
+  });
+
+  /* ---------- mulai ---------- */
+  function mulai() {
+    clearTimeout(jagaWaktu);
+    id('galat').hidden = true;
+    siap = { meja: false, kartu: false };
+    var pesanAwal;
+    try { pesanAwal = isiAwal(); }
+    catch (x) {
+      id('galat').textContent = 'Demo gagal disiapkan: ' + x.message;
+      id('galat').hidden = false;
+      return;
+    }
+    barisBuku = 0;
+    gambarBuku(true);
+    kosongkanChat();
+    if (pesanAwal && pesanAwal.teks) gelembung('masuk', pesanAwal.teks, waktuRingkas(pesanAwal.t), true);
+    bukaTabHp('kartu');
+    tampilkan('meja');
+    id('saklar-titik').hidden = true;
+    muatMeja();
+    muatKartu();
+    // Kalau bingkai tidak bisa berjalan di tampilan ini, tunjukkan tangkapan layar sebagai gantinya.
+    jagaWaktu = setTimeout(function () {
+      if (siap.meja && siap.kartu) return;
+      id('panggung').hidden = true;
+      document.querySelector('.saklar').hidden = true;
+      id('cadangan').hidden = false;
+    }, 6000);
+  }
+
+  id('ulang').addEventListener('click', function () {
+    id('panggung').hidden = false;
+    document.querySelector('.saklar').hidden = false;
+    id('cadangan').hidden = true;
+    mulai();
+  });
+
+  mulai();
+})();
+</script>
