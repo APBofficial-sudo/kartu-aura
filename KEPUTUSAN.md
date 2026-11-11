@@ -11,7 +11,8 @@ Catatan singkat kenapa Kartu Aura dibuat seperti ini. Berguna kalau nanti ada ya
 | Pembeli tidak bisa menambah stempel sendiri | Hanya admin (atau alur pesanan) yang menstempel. Kartu di HP pembeli hanya menampilkan. |
 | Persetujuan data ditanyakan saat kartu pertama dibuka, terpisah dari syarat program | Pembeli tahu apa yang disimpan sebelum datanya ditampilkan. Buktinya tercatat sebagai satu baris transaksi. |
 | "Hapus data saya" langsung berlaku | Nama dan nomor dihapus saat itu juga, tidak menunggu admin. Catatan stempel tetap ada tanpa identitas. |
-| Stempel tampil di muka kartu, baliknya untuk aturan dan kode | Yang paling ingin dilihat pembeli adalah "sudah berapa". Tidak perlu membalik kartu untuk tahu. |
+| Satu muka kartu saja: segel stempel, kalimat status, dan kode kartu; aturan di lembar "Syarat & privasi" | Yang paling ingin dilihat pembeli adalah "sudah berapa". Tidak ada yang perlu dibalik atau dibuka. |
+| Stempel digambar sebagai segel lilin merah berlambang APB, hadiah sebagai segel emas | Mengikuti desain "Kartu Member Digital Parfum Aura": stempel baru jatuh seperti cap lilin, terasa seperti hadiah, bukan tabel. |
 | Tidak dibuat sebagai aplikasi yang "di-install" (tanpa manifest) | Supaya "Tambahkan ke layar utama" menyimpan link lengkap beserta kodenya. |
 | Tidak ada poin, level, atau undian | Satu aturan saja: sekian stempel, satu hadiah. Mudah dijelaskan admin dan mudah dipercaya pembeli. |
 
@@ -62,6 +63,6 @@ Catatan singkat kenapa Kartu Aura dibuat seperti ini. Berguna kalau nanti ada ya
 | Cadangan mingguan otomatis | Tidak ada | Butuh izin ke seluruh Google Drive. Diganti riwayat versi dan salinan bulanan. |
 | Ringkasan memakai rumus | Ditulis oleh skrip | Lebih tahan terhadap perubahan di sheet. |
 | Permintaan hapus data diproses admin | Langsung berlaku | Lebih sederhana dan tidak ada yang tertunda. |
-| Kartu mendatar, stempel di balik kartu | Kartu tegak, stempel di muka | Lebih pas di layar HP, dan stempel langsung terlihat. |
+| Kartu mendatar, stempel di balik kartu | Kartu tegak, stempel di muka, tanpa sisi balik | Lebih pas di layar HP, dan stempel langsung terlihat. |
 | Sambungan n8n menyusul | Pintunya dibuat sekarang, dalam keadaan mati | Laura menjadi pintu depan WhatsApp, jadi sambungannya sudah disiapkan. |
 | Skrip ditempel di dalam Google Sheet, izin hanya ke file itu | Skrip berdiri sendiri, spreadsheet dibuat oleh `pasang` | Apps Script tidak bisa dibuka dari menu Extensions di akun Owner. Cara ini juga lebih sedikit langkah, dan web app selalu bisa menemukan spreadsheet-nya. |
