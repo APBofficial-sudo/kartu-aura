@@ -530,8 +530,9 @@ body.hal-kartu {
 
 /* ---------- slot segel ---------- */
 
-.slot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 14px; column-gap: 8px; margin: 0; padding: 4px 0 0; list-style: none; }
-.slot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+/* Tiga slot sebaris; baris terakhir yang tidak penuh (mis. 6 stempel + Gratis) ditaruh di tengah. */
+.slot-grid { display: flex; flex-wrap: wrap; justify-content: center; row-gap: 14px; column-gap: 8px; margin: 0; padding: 4px 0 0; list-style: none; }
+.slot { flex: 0 0 calc((100% - 16px) / 3); display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .slot__bulat { position: relative; width: 80px; height: 80px; }
 @media (max-width: 359px) { .slot__bulat { width: 68px; height: 68px; } }
 
