@@ -1508,7 +1508,7 @@ window.KA = window.KA || {};
     var cara = el('ol', { class: 'cara' });
     [
       ['Pesan parfum lewat WhatsApp.', ' Sebut kode kartumu supaya cepat dicek.'],
-      ['Setelah pesanan lunas, 1 stempel masuk.', ' Kartu ini ikut berubah sendiri.'],
+      [d.aturan === 'botol' ? 'Setelah pesanan lunas, stempel masuk: 1 untuk tiap botol parfum.' : 'Setelah pesanan lunas, 1 stempel masuk.', ' Kartu ini ikut berubah sendiri.'],
       ['Di stempel ke-' + k.target + ', ' + d.hadiah + ' ikut dikirim.', ' Kartu berikutnya langsung dimulai.']
     ].forEach(function (b) { cara.appendChild(el('li', {}, [el('strong', { teks: b[0] }), b[1]])); });
 
